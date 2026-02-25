@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "SEO Data Engine > BigQuery",
+  "version": "13.0",
+  "permissions": ["identity", "storage", "scripting", "downloads", "activeTab"],
+  "host_permissions": [
+    "https://*.throneneataffiliates.com/*", 
+    "https://*.neataffiliates.com/*", 
+    "https://www.googleapis.com/*"
+  ],
+  "background": { "service_worker": "service_worker.js" },
+  "action": {},
+  "content_scripts": [{
+    "matches": ["https://admin.throneneataffiliates.com/*", "https://admin2.neataffiliates.com/*"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }],
+  "web_accessible_resources": [{
+    "resources": ["logo.png"],
+    "matches": ["<all_urls>"]
+  }],
+  "oauth2": {
+    "client_id": "111074633307-uk3b27perq38s7o27eid7t7pt9dd9nok.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/bigquery"]
+  }
+}
