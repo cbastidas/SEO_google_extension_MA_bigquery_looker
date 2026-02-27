@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "SEO Data Engine > BigQuery",
-  "version": "13.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs0UX5qSGVRpnQScLo5N4jWhPYpzfA2HKDAb9aDrGV5PWwCu6f6/NELhL7lfw4VYKflVdlFIriV4bxOuvjrHPIsAjsX/CWKdozVJcs3txvlCJ1U6t2S8vS+CmWGGyFrOAF4YAOWP2s22wpZ+V1b6BCPk8Q3xSyS1MRfl5QBmH4krSkbLVMWtUW1wITIXZ5vIj8nf/HSqgnJ3B80CgG8lS65uGmQjpYAQeNYijGY1Qs7I8Awc6X7kIH9WYaQLKl11BTacb05JQ28aHfqKS5+HOUctc5XKFtqwdXTLg6Y7okrcXTUCGtHTiAUetBRsoncsllJs5dMh15uW01gBoQfmBGwIDAQAB",
+  "version": "14.0",
   "permissions": ["identity", "storage", "scripting", "downloads", "activeTab"],
   "host_permissions": [
     "https://*.throneneataffiliates.com/*", 
