@@ -11,7 +11,32 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     insertData(msg).then(sendResponse);
     return true;
   }
+  if (msg.type === "GET_LATEST_DATE") {
+    getLatestDate().then(sendResponse);
+    return true;
+  }
 });
+
+async function getLatestDate() {
+  try {
+    const auth = await chrome.identity.getAuthToken({ interactive: true });
+    const query = `SELECT FORMAT_DATE('%Y-%m-%d', MAX(report_date)) as last_date FROM \`${PROJECT_ID}.${DATASET_ID}.${TABLE_ID}\``;
+
+    const resp = await fetch(`https://bigquery.googleapis.com/bigquery/v2/projects/${PROJECT_ID}/queries`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${auth.token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ query, useLegacySql: false })
+    });
+
+    const data = await resp.json();
+    if (data.rows && data.rows.length > 0) {
+      return { ok: true, date: data.rows[0].f[0].v };
+    }
+    return { ok: true, date: "No data" };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
 
 async function insertData(msg) {
   try {

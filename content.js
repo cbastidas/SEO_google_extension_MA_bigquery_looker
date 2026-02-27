@@ -5,6 +5,7 @@
     let panel = document.getElementById("maf-panel");
     if (panel) {
       panel.style.display = (panel.style.display === "none") ? "block" : "none";
+      if (panel.style.display === "block") updateLastDate();
       return;
     }
 
@@ -21,17 +22,25 @@
         <img src="${LOGO_URL}" style="height:30px;">
         <button id="maf-close" style="background:none; border:none; color:#aaa; font-size:24px; cursor:pointer;">&times;</button>
       </div>
+      
+      <div id="maf-latest-info" style="margin-bottom:15px; padding:12px; background:#eff6ff; border:1px solid #dbeafe; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:10px; color:#1e40af; font-weight:bold; letter-spacing:0.5px;">LAST RECORD IN DB:</span>
+        <span id="last-date-display" style="font-size:13px; font-weight:800; color:#1e40af;">Checking...</span>
+      </div>
+
       <div id="maf-header">
         <h2 style="margin:0; font-size:14px; color:#1e293b; font-weight:800;">SEO > BIGQUERY PIPELINE</h2>
       </div>
+
       <div id="maf-main-controls" style="margin-top:15px;">
-        <label style="font-size:11px; font-weight:bold;">SELECT DATE</label>
+        <label style="font-size:11px; font-weight:bold;">SELECT DATE TO UPLOAD</label>
         <input type="date" id="maf-date" style="width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
         <div style="display:flex; gap:10px;">
-          <button id="btn-throne" style="flex:1; background:#6366f1; color:white; border:none; padding:12px; border-radius:8px; cursor:pointer;">THRONE</button>
-          <button id="btn-realm" style="flex:1; background:#10b981; color:white; border:none; padding:12px; border-radius:8px; cursor:pointer;">REALM</button>
+          <button id="btn-throne" style="flex:1; background:#6366f1; color:white; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:bold;">THRONE</button>
+          <button id="btn-realm" style="flex:1; background:#10b981; color:white; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:bold;">REALM</button>
         </div>
       </div>
+
       <div id="maf-status-box" style="margin-top:20px; display:none; padding:15px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0;">
         <div id="maf-status-text" style="font-size:13px; font-weight:600; color:#334155;"></div>
         <div id="maf-upload-action" style="display:none; margin-top:10px;">
@@ -58,6 +67,17 @@
       const { activeTask } = await chrome.storage.local.get("activeTask");
       if (e.target.files[0] && activeTask) uploadToBQ(e.target.files[0], activeTask);
     };
+
+    updateLastDate();
+  }
+
+  function updateLastDate() {
+    chrome.runtime.sendMessage({ type: "GET_LATEST_DATE" }, (res) => {
+      const display = document.getElementById("last-date-display");
+      if (display) {
+        display.innerText = (res?.ok && res.date) ? res.date : "No data";
+      }
+    });
   }
 
   async function uploadToBQ(file, task) {
@@ -82,6 +102,7 @@
         statusText.style.color = "green";
         statusText.innerText = `✅ Success! ${res.count} rows added.`;
         chrome.storage.local.remove("activeTask");
+        updateLastDate();
       } else {
         statusText.style.color = "red";
         statusText.innerText = "❌ Error: " + res.error;
@@ -93,7 +114,6 @@
     if (msg.type === "TOGGLE_PANEL") drawUI();
   });
 
-  // AUTO-RUN LOGIC WHEN PAGE LOADS
   (async () => {
     const { activeTask } = await chrome.storage.local.get("activeTask");
     if (activeTask && window.location.href.includes("id=21")) {
@@ -108,7 +128,6 @@
       if (sspField) {
         document.querySelector("#date_range_from").value = activeTask.date;
         document.querySelector("#date_range_to").value = activeTask.date;
-        // SEO Team ID: Throne=6, Realm=56
         sspField.value = activeTask.platform === "Realm" ? "56" : "6";
         sspField.dispatchEvent(new Event('change', {bubbles:true}));
         
@@ -116,7 +135,7 @@
           const dlBtn = document.querySelector('button[name="report_bttn"][value="download"]');
           if(dlBtn) {
             dlBtn.click();
-            statusText.innerText = "📁 Download started! Please wait...";
+            statusText.innerText = "📁 Download started! Please select the file below:";
             document.getElementById("maf-upload-action").style.display = "block";
           }
         }, 2000);
